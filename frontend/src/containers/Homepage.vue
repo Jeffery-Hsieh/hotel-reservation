@@ -51,7 +51,7 @@
 <script>
 const axios = require('axios');
 import Datepicker from 'vuejs-datepicker';
-import { parse } from 'querystring';
+import { dateToString } from "../util/dateFormat"
   export default {
 
     data () {
@@ -68,56 +68,31 @@ import { parse } from 'querystring';
     },
     methods: {
       search: function() {
-        //search
-
-        var y1 = this.check_in_date.toString().split("-")[0]
-        var y2 = this.check_out_date.toString().split("-")[0]
-        var m1 = this.check_in_date.toString().split("-")[1]
-        var m2 = this.check_out_date.toString().split("-")[1]
-        var d1 = this.check_in_date.toString().split("-")[2]
-        var d2 = this.check_out_date.toString().split("-")[2]
-
-        this.check_in_date = y1 + m1 + d1
-        this.check_out_date = y2 + m2 + d2
-
+        //search2
         if(this.region==''){
           alert('請輸入想訂房地區！！！')
-          return null
+          return
         }
 
-        // if(this.single+this.double+this.quad < 1){
-        //   alert('請輸入房型數量需求！！！')
-        //   return null
-        // }
-
-        if(y2 == undefined || y1 == undefined){
+    
+        if(!this.check_in_date || !this.check_out_date) {
           alert('請輸入日期！！！')
-          return null
+          return
         }
 
-        if(parseInt(y1) > parseInt(y2) || parseInt(m1) > parseInt(m2) || parseInt(d1) >= parseInt(d2)){
-          alert('日期輸入錯誤！！！')
-          return null
+        if(new Date(this.check_out_date) - new Date(this.check_in_date) < 0) {
+          alert('退房時間不可大於入住時間')
+          return
         }
-        //comments=[{content:'可以',hotelStar:3, name: 'bohwea'},{content:'我覺得不行',hotelStar: 3, name: 'bohwea and me'}]
-        //comments=[{content:'我覺得不行',hotelStar: 3, name: 'bohwea and me'},{content:'可以',hotelStar:3, name: 'bohwea'}]
-        //自定義
-        var hotel_infos = ''
-        // [
-        //   {hotelID: 'sex till death', address: 'bohwea road intersection', hotelStar: 4},
-        //   {hotelID: 'never stop', address: 'bohwea road you know', hotelStar: 3}
-        // ]
 
-
-        // var cid = this.check_in_date.split('-')[0] + one2two(this.check_in_date.split('-')[1]) + this.check_in_date.split('-')[2]
-        // var cod = this.check_out_date.split('-')[0] + one2two(this.check_out_date.split('-')[1]) + this.check_out_date.split('-')[2]
-        axios_get_res('http://localhost:8080/hotel_reservation/hotels', {
-          region: this.region,
-          check_in_date: this.check_in_date,
-          check_out_date: this.check_out_date
-        }).then(data => {
-          hotel_infos = data;
-          hotel_infos.forEach(function(item, index, array){
+        axios.get('http://localhost:8080/hotel_reservation/hotels', { 
+          params:{
+            region: this.region,
+            check_in_date: dateToString(this.check_in_date),
+            check_out_date: dateToString(this.check_out_date)
+          }
+        }).then(res => {
+          res.data.forEach(function(item, index, array){
             var s = ''
             for(var i = 0; i < parseInt(item.hotelStar); i++) { s += '★ '}
             item.hotelStar = s          
@@ -128,7 +103,7 @@ import { parse } from 'querystring';
               region: this.region,
               check_in_date: this.check_in_date,
               check_out_date: this.check_out_date,
-              hotel_infos: hotel_infos
+              hotel_infos: res.data
               }
             }
           });
@@ -143,23 +118,10 @@ import { parse } from 'querystring';
         }
 
         var room_order = ''
-        // {
-        //   customerName: 'W.Han',
-        //   hotelID: 'sex on the beach',
-        //   check_in_date: '2020-1-18',
-        //   check_out_date: '2020-1-20',
-        //   singleRoomNum: 2,
-        //   doubleRoomNum: 2,
-        //   quadRoomNum: 2,
-        //   isPaid: 0,
-        //   address: 'to heaven'
-        // };''
 
-        axios_get_res('http://localhost:8080/hotel_reservation/orders/'+this.order_id, {
-            orderID: this.order_id
-          })
-          .then(data => {
-            room_order = data;
+        axios.get('http://localhost:8080/hotel_reservation/orders/'+this.order_id)
+          .then(res => {
+            room_order = res.data;
 
             if(room_order.isPaid==1){
               room_order.isPaid = '已付款';
@@ -181,18 +143,6 @@ import { parse } from 'querystring';
     components: {
       Datepicker
     }
-  }
-  function axios_get_res(url, para) {
-    return axios.get(url, {params: para})
-    .then((res) => { return res.data; })
-    .catch((error) => { console.log(error)})
-    .finally(() => {return null; })
-  };
-  function one2two(input){
-    if(parseInt(input)< 10){
-      input = '0' + input
-    }
-    return input
   }
 </script>
 

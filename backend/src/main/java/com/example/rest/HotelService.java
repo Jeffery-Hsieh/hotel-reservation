@@ -70,7 +70,7 @@ public class HotelService {
         requirement.put("Quad", order.quadRoomNum);
     }
 
-    System.out.println(order.GetCustomerName());
+    System.out.println(order.GetCustomerName() + " add a new Order");
     Order newOrder = SearchControl.addOrder(order.startDate, order.endDate, order.customerName, hotelID, requirement);
     newOrder.newOrder();
 

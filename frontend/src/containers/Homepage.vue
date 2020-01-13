@@ -26,7 +26,7 @@
         <button
           class="btn btn-success"
           style="marginBottom: 30px;"
-          @click.prevent="search()"
+          @click.prevent="search"
         >
           Search
         </button>
@@ -47,6 +47,7 @@
 </template>
 <script src="https://unpkg.com/vue"></script>
 <script src="https://unpkg.com/vuejs-datepicker"></script>
+
 <script>
 const axios = require('axios');
 import Datepicker from 'vuejs-datepicker';
@@ -66,7 +67,7 @@ import { parse } from 'querystring';
       }
     },
     methods: {
-      search(){
+      search: function() {
         //search
 
         var y1 = this.check_in_date.toString().split("-")[0]
@@ -117,19 +118,21 @@ import { parse } from 'querystring';
         }).then(data => {
           hotel_infos = data;
           hotel_infos.forEach(function(item, index, array){
-          var s = ''
-          for(var i = 0; i < parseInt(item.hotelStar); i++) { s += '★ '}
-          item.hotelStar = s
-        });
-        this.$router.push({name: 'hotel', params: {
-          data: {
-            region: this.region,
-            check_in_date: this.check_in_date,
-            check_out_date: this.check_out_date,
-            hotel_infos: hotel_infos}
-          }
+            var s = ''
+            for(var i = 0; i < parseInt(item.hotelStar); i++) { s += '★ '}
+            item.hotelStar = s          
+          })
+          
+          this.$router.push({name: 'hotel', params: {
+            data: {
+              region: this.region,
+              check_in_date: this.check_in_date,
+              check_out_date: this.check_out_date,
+              hotel_infos: hotel_infos
+              }
+            }
           });
-        })
+        });
 
       },
       check_order(){
@@ -192,6 +195,7 @@ import { parse } from 'querystring';
     return input
   }
 </script>
+
 <style scoped>
 .hoverCard {
   box-shadow: 5px 5px 30px rgba(228, 228, 228, 0.5);

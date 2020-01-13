@@ -1,12 +1,13 @@
 package com.example.rest;
 
-import java.util.*;
-
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class Comment {
+	@XmlElement
 	private String description = "";
+	@XmlElement
 	private int starRate = 0;
 		
 	public

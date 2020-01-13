@@ -28,72 +28,54 @@ public class Room {
 			//RoomId = HotelID_RoomType_RoomNum, e.g., 6_S_4 means fourth single room of Hotel_6
 			//Need to gather orderIdList of this room while gathering other information
 			
-			String url = "jdbc:mysql://140.112.12.252:3306/hotelsystem?serverTimezone=UTC";
-		    String username = "OOAD";
-		    String password = "caece";
-		    Connection con = null;
+			Connection con = DBUtil.getConnection();
+
+			// HotelID Filter
+	    	String query = "SELECT * FROM tb_hotel where HotelID = ?";
+	    	PreparedStatement pst = con.prepareStatement(query);
+	    	
+	    	//  Need to pass value (HotelId) ******************************
+	    	pst.setString(1, HotelID);
+	    			        
+	        // execute the query, and get a java resultset
+	        ResultSet rs = pst.executeQuery();
+	        
+	        ArrayList<Integer> RoomPrice = new ArrayList<Integer>();			        
+	        if(rs.next())
+	        {
+	        	RoomPrice.add(rs.getInt("singleRoomPrice")); 
+	        	RoomPrice.add(rs.getInt("doubleRoomPrice"));  
+	        	RoomPrice.add(rs.getInt("quadRoomPrice"));
+	        }
+
+			for(String roomId : roomIdList) {
+					
+		        // find OrderId from RoomID
+		        query = "SELECT * FROM tb_orderid2roomid where roomID = ?";
+		        pst = con.prepareStatement(query);
+		        pst.setString(1, roomId);
+		        rs = pst.executeQuery();
+		        
+		        ArrayList<String> orderIdList = new ArrayList<String>();
+		        while (rs.next())
+		        {	        
+		        	orderIdList.add(rs.getString("orderID"));
+		        }
 		    
-			try {
-			    	Class.forName("com.mysql.cj.jdbc.Driver");
-			    	con = DriverManager.getConnection(url, username, password);
- 	
-					for(String roomId : roomIdList) {
-						
-						// HotelID Filter
-				    	String query = "SELECT * FROM tb_hotel where HotelID = ?";
-				    	PreparedStatement pst = con.prepareStatement(query);
-				    	
-				    	//  Need to pass value (HotelId) ******************************
-				    	pst.setString(1, HotelID);
-				    			        
-				        // execute the query, and get a java resultset
-				        ResultSet rs = pst.executeQuery();
-				        
-				        ArrayList<Integer> RoomPrice = new ArrayList<Integer>();			        
-				        if(rs.next())
-				        {
-				        	RoomPrice.add(rs.getInt("singleRoomPrice")); 
-				        	RoomPrice.add(rs.getInt("doubleRoomPrice"));  
-				        	RoomPrice.add(rs.getInt("quadRoomPrice"));
-				        }
-				        
-				        // find OrderId from RoomID
-				        query = "SELECT * FROM tb_orderid2roomid where roomID = ?";
-				        pst = con.prepareStatement(query);
-				        pst.setString(1, roomId);
-				        rs = pst.executeQuery();
-				        
-				        ArrayList<String> orderIdList = new ArrayList<String>();
-				        while (rs.next())
-				        {	        
-				        	orderIdList.add(rs.getString("orderID"));
-				        }
-				    
-						switch(roomId.substring(roomId.indexOf('_') + 1, roomId.indexOf('_') + 2)) {
-						case "S":
-							rooms.add(new Room(roomId, "Single", RoomPrice.get(0), orderIdList));
-							break;
-						case "D":
-							rooms.add(new Room(roomId, "Double", RoomPrice.get(1), orderIdList));
-							break;
-						case "Q":
-							rooms.add(new Room(roomId, "Quad", RoomPrice.get(2), orderIdList));
-							break;
-						}
-					}
-					con.close();
-	        			        
-			    } catch (SQLException ex) {
-			        throw new Error("Error ", ex);
-			    } finally {
-			      try {
-			        if (con != null) {
-			            con.close();
-			        }
-			      } catch (SQLException ex) {
-			          System.out.println(ex.getMessage());
-			      }
+				switch(roomId.substring(roomId.indexOf('_') + 1, roomId.indexOf('_') + 2)) {
+				case "S":
+					rooms.add(new Room(roomId, "Single", RoomPrice.get(0), orderIdList));
+					break;
+				case "D":
+					rooms.add(new Room(roomId, "Double", RoomPrice.get(1), orderIdList));
+					break;
+				case "Q":
+					rooms.add(new Room(roomId, "Quad", RoomPrice.get(2), orderIdList));
+					break;
+				}
 			}
+
+			con.close();
 			
 			return rooms;
 		}

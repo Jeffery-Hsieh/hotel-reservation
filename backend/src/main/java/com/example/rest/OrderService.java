@@ -13,6 +13,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
+import com.google.gson.JsonObject;
+
 @Path("/orders")
 public class OrderService {
     // show order detail
@@ -53,8 +55,10 @@ public class OrderService {
         return newOrder;
     }
 
+    // pay money
     @PUT
     @Path("{orderID}/pay")
+    @Consumes("application/json")
     @Produces("application/json")
     public Response payOrder(
         @PathParam("orderID") String orderID,
@@ -62,6 +66,7 @@ public class OrderService {
     ) throws Exception {
         Order order = Order.GetOrder(orderID);
         order.updateOrder(newOrder.isPaid);
+        EmailControl.sendEmail(newOrder.customerEmail, order);
 
         return Response.ok().build();
     }

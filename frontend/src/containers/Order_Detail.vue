@@ -68,17 +68,26 @@
                     <br>
                     Single Room:
                     <select class="form-control" v-model="modify_single">
-                        <option v-for="n in reservation_info.singleRoomNum + 1">{{reservation_info.singleRoomNum-n+1}}</option>
+                        <option 
+                            v-for="n in reservation_info.singleRoomNum + 1"
+                            :key="n"
+                        >{{reservation_info.singleRoomNum-n+1}}</option>
                     </select>
                     <br>
                     double Room:
                     <select class="form-control" v-model="modify_double">
-                        <option v-for="n in reservation_info.doubleRoomNum + 1">{{reservation_info.doubleRoomNum-n+1}}</option>
+                        <option 
+                            v-for="n in reservation_info.doubleRoomNum + 1"
+                            :key="n"
+                        >{{reservation_info.doubleRoomNum-n+1}}</option>
                     </select>
                     <br>
                     Quad Room:
                     <select class="form-control" v-model="modify_quad">
-                        <option v-for="n in reservation_info.quadRoomNum + 1">{{reservation_info.quadRoomNum-n+1}}</option>
+                        <option 
+                            v-for="n in reservation_info.quadRoomNum + 1"
+                            :key="n"
+                        >{{reservation_info.quadRoomNum-n+1}}</option>
                     </select>
                     <br>
                     <br>

@@ -1,14 +1,9 @@
 <template>
-  <div class="form-control">
-    <button  @click.prevent="homepage">Home Page</button>
-  </div>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a href="/">Home Page</a>
+  </nav>
 </template>
 <script>
   export default {
-    methods: {
-      homepage(){
-        this.$router.push('/');
-      }
-    }
   }
 </script>

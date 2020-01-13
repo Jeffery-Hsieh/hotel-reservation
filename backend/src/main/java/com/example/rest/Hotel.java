@@ -59,52 +59,34 @@ public class Hotel {
 		static Hotel GetHotel(String HotelID) throws Exception {
 			
 			Hotel hotel = null;
-			
-			String url = "jdbc:mysql://140.112.12.252:3306/hotelsystem?serverTimezone=UTC";
-		    String username = "OOAD";
-		    String password = "caece";
-		    Connection con = null;
+
+			Connection con = DBUtil.getConnection();
 		    
-			try {
-			    	Class.forName("com.mysql.cj.jdbc.Driver");
-			    	con = DriverManager.getConnection(url, username, password);
- 	
-			    	// HotelID Filter
-			    	String query = "SELECT * FROM tb_hotel where HotelID = ?";
-			    	PreparedStatement pst = con.prepareStatement(query);
-			    	
-			    	//  Need to pass value from controller
-			    	pst.setString(1, HotelID);
-			    				        
-			        // execute the query, and get a java resultset
-			        ResultSet rs = pst.executeQuery();
-			        			        			        
-			        if(rs.next())
-			        {
-				        hotel = new Hotel(rs.getString("HotelID"), 
-			     						  rs.getInt("HotelStar"), 
-			    						  rs.getString("Locality"), 
-			    						  rs.getString("Street_Address"), 
-			    						  rs.getInt("singleRoomNum"), 
-			    						  rs.getInt("doubleRoomNum"), 
-			    						  rs.getInt("quadRoomNum"),
-			    						  rs.getInt("singleRoomPrice"), 
-			    						  rs.getInt("doubleRoomPrice"), 
-			    						  rs.getInt("quadRoomPrice"));
-			        }
-			        con.close();
-			        
-			    } catch (SQLException ex) {
-			        throw new Error("Error ", ex);
-			    } finally {
-			      try {
-			        if (con != null) {
-			            con.close();
-			        }
-			      } catch (SQLException ex) {
-			          System.out.println(ex.getMessage());
-			      }
-			}
+			// HotelID Filter
+	    	String query = "SELECT * FROM tb_hotel where HotelID = ?";
+	    	PreparedStatement pst = con.prepareStatement(query);
+	    	
+	    	//  Need to pass value from controller
+	    	pst.setString(1, HotelID);
+	    				        
+	        // execute the query, and get a java resultset
+	        ResultSet rs = pst.executeQuery();
+	        			        			        
+	        if(rs.next())
+	        {
+		        hotel = new Hotel(rs.getString("HotelID"), 
+	     						  rs.getInt("HotelStar"), 
+	    						  rs.getString("Locality"), 
+	    						  rs.getString("Street_Address"), 
+	    						  rs.getInt("singleRoomNum"), 
+	    						  rs.getInt("doubleRoomNum"), 
+	    						  rs.getInt("quadRoomNum"),
+	    						  rs.getInt("singleRoomPrice"), 
+	    						  rs.getInt("doubleRoomPrice"), 
+	    						  rs.getInt("quadRoomPrice"));
+	        }
+	        con.close();
+
 			return hotel;
 		}
 
@@ -112,62 +94,31 @@ public class Hotel {
 			ArrayList<Hotel> hotels = new ArrayList<Hotel>();
 			
 			// TODO: get all hotel from database and create Hotel objects with constructor
-		
-			// DB connect information
-		    String url = "jdbc:mysql://140.112.12.252:3306/hotelsystem?serverTimezone=UTC";
-		    String username = "OOAD";
-		    String password = "caece";
-		    Connection con = null;
-			try {
-			    	Class.forName("com.mysql.cj.jdbc.Driver");
-			    	con = DriverManager.getConnection(url, username, password);
+			Connection con = DBUtil.getConnection();
 
-			    	// System.out.println("Connected!");
-			    	
-			    	// SQL query
-			    	// if you only need a few columns, specify them by name instead of using "*"
-			    	/* 
-			    	String query = "SELECT * FROM tb_hotel";
-			    	create the java statement
-			    	Statement st = con.createStatement();
-			    	*/
-			    	
-			    	// Locality Filter
-			    	String query = "SELECT * FROM tb_hotel where Locality = ?";
-			    	PreparedStatement pst = con.prepareStatement(query);
-			    	
-			    	//  Need to pass value from controller
-			    	pst.setString(1, locality);
-		    	
-			        // execute the query, and get a java resultset
-			        ResultSet rs = pst.executeQuery();
-			        
-			        while (rs.next())
-			        {	        
-			        	hotels.add(new Hotel(rs.getString("HotelID"), 
-			        						 rs.getInt("HotelStar"), 
-			        						 rs.getString("Locality"), 
-			        						 rs.getString("Street_Address"), 
-			        						 rs.getInt("singleRoomNum"), 
-			        						 rs.getInt("doubleRoomNum"), 
-			        						 rs.getInt("quadRoomNum"),
-			        						 rs.getInt("singleRoomPrice"), 
-			        						 rs.getInt("doubleRoomPrice"), 
-			        						 rs.getInt("quadRoomPrice")));
-			        }
-			        con.close();
-			        
-			    } catch (SQLException ex) {
-			        throw new Error("Error ", ex);
-			    } finally {
-			      try {
-			        if (con != null) {
-			            con.close();
-			        }
-			      } catch (SQLException ex) {
-			          System.out.println(ex.getMessage());
-			      }
-			}
+			String query = "SELECT * FROM tb_hotel where Locality = ?";
+	    	PreparedStatement pst = con.prepareStatement(query);
+	    	
+	    	//  Need to pass value from controller
+	    	pst.setString(1, locality);
+    	
+	        // execute the query, and get a java resultset
+	        ResultSet rs = pst.executeQuery();
+	        
+	        while (rs.next())
+	        {	        
+	        	hotels.add(new Hotel(rs.getString("HotelID"), 
+	        						 rs.getInt("HotelStar"), 
+	        						 rs.getString("Locality"), 
+	        						 rs.getString("Street_Address"), 
+	        						 rs.getInt("singleRoomNum"), 
+	        						 rs.getInt("doubleRoomNum"), 
+	        						 rs.getInt("quadRoomNum"),
+	        						 rs.getInt("singleRoomPrice"), 
+	        						 rs.getInt("doubleRoomPrice"), 
+	        						 rs.getInt("quadRoomPrice")));
+	        }
+	        con.close();
 			
 			return hotels;
 		}
@@ -191,40 +142,23 @@ public class Hotel {
 
 			ArrayList<Comment> comments = new ArrayList<Comment>();
 			
-		    String url = "jdbc:mysql://140.112.12.252:3306/hotelsystem?serverTimezone=UTC";
-		    String username = "OOAD";
-		    String password = "caece";
-		    Connection con = null;
-			try {
-			    	Class.forName("com.mysql.cj.jdbc.Driver");
-			    	con = DriverManager.getConnection(url, username, password);
+		    Connection con = DBUtil.getConnection();
 
-			    	String query = "SELECT * FROM tb_comment where HotelID = ?";
-			    	PreparedStatement pst = con.prepareStatement(query);
-			    	
-			    	pst.setString(1, HotelID);
-		    	
-			        // execute the query, and get a java resultset
-			        ResultSet rs = pst.executeQuery();
-			        
-			        while (rs.next())
-			        {	        
-						Comment comment = new Comment(rs.getString("Comment"), rs.getInt("Star"));
-			        	comments.add(comment);
-			        }
-			        con.close();
-			        
-			    } catch (SQLException ex) {
-			        throw new Error("Error ", ex);
-			    } finally {
-			      try {
-			        if (con != null) {
-			            con.close();
-			        }
-			      } catch (SQLException ex) {
-			          System.out.println(ex.getMessage());
-			      }
-			}
+			String query = "SELECT * FROM tb_comment where HotelID = ?";
+	    	PreparedStatement pst = con.prepareStatement(query);
+	    	
+	    	pst.setString(1, HotelID);
+    	
+	        // execute the query, and get a java resultset
+	        ResultSet rs = pst.executeQuery();
+	        
+	        while (rs.next())
+	        {	        
+				Comment comment = new Comment(rs.getString("Comment"), rs.getInt("Star"));
+	        	comments.add(comment);
+	        }
+	        
+	        con.close();
 			
 			return comments;
 		}

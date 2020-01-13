@@ -25,7 +25,9 @@ public class Order {
 		int totalPrice = 0, singleRoomNum = 0, doubleRoomNum = 0, quadRoomNum = 0;
 		@XmlElement
 		int isPaid = 0;
-		
+		@XmlElement
+		String customerEmail;
+
 		ArrayList<String> roomIdList = new ArrayList<String>();
 		
 	public
@@ -77,58 +79,38 @@ public class Order {
 		
 		void newOrder() throws Exception {
 			
-		    String url = "jdbc:mysql://140.112.12.252:3306/hotelsystem?serverTimezone=UTC";
-		    String username = "OOAD";
-		    String password = "caece";
-		    Connection con = null;
+		    Connection con = DBUtil.getConnection();
 		    
-		    try {
-		    	Class.forName("com.mysql.cj.jdbc.Driver");
-		    	con = DriverManager.getConnection(url, username, password);
-	
-		    	String query = "INSERT INTO `hotelsystem`.`tb_order` (`OrderID`, `StartDate`, `EndDate`, `CustomerName`, `HotelID`,"
+		    String query = "INSERT INTO `hotelsystem`.`tb_order` (`OrderID`, `StartDate`, `EndDate`, `CustomerName`, `HotelID`,"
 		    			+ " `TotalPrice`, `SingleRoomNum`, `DoubleRoomNum`, `QuadRoomNum`, `IsPaid`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, '0');";
-		    	PreparedStatement pst = con.prepareStatement(query);
-		    	
-		    	pst.setString (1, id); // UUID
-		    	pst.setString (2, startDate);
-		    	pst.setString (3, endDate);
-		    	pst.setString (4, customerName);
-		    	pst.setString (5, hotelId);
-		    	pst.setInt (6, totalPrice);
-		    	pst.setInt (7, singleRoomNum);
-		    	pst.setInt (8, doubleRoomNum);
-		    	pst.setInt (9, quadRoomNum);
-		
-				
-				pst.execute();
-				
-		        for(String roomId : roomIdList) {
-		        	
-		        	query = "INSERT INTO `hotelsystem`.`tb_orderid2roomid` (`orderID`, `roomID`) VALUES (?, ?);";
-		        	pst = con.prepareStatement(query);
-		        	
-		        	pst.setString (1, id);
-		        	pst.setString (2, roomId);
-		        	
-		        	pst.execute();		        	
-		        }
+	    	PreparedStatement pst = con.prepareStatement(query);
+	    	
+	    	pst.setString (1, id); // UUID
+	    	pst.setString (2, startDate);
+	    	pst.setString (3, endDate);
+	    	pst.setString (4, customerName);
+	    	pst.setString (5, hotelId);
+	    	pst.setInt (6, totalPrice);
+	    	pst.setInt (7, singleRoomNum);
+	    	pst.setInt (8, doubleRoomNum);
+	    	pst.setInt (9, quadRoomNum);
+	
+			
+			pst.execute();
+			
+	        for(String roomId : roomIdList) {
+	        	
+	        	query = "INSERT INTO `hotelsystem`.`tb_orderid2roomid` (`orderID`, `roomID`) VALUES (?, ?);";
+	        	pst = con.prepareStatement(query);
+	        	
+	        	pst.setString (1, id);
+	        	pst.setString (2, roomId);
+	        	
+	        	pst.execute();		        	
+	        }
 
-		        con.close();
+	        con.close();
 	        
-		        
-		    } catch (SQLException ex) {
-				System.out.println(ex);
-		        throw new Error("Error ", ex);
-		    } finally {
-		      try {
-		        if (con != null) {
-		            con.close();
-		        }
-		      } catch (SQLException ex) {
-		          System.out.println(ex.getMessage());
-		      }
-		    }
 		}
 
 		int CalculateDays() {
@@ -139,59 +121,35 @@ public class Order {
 		
 		static ArrayList<Order> GetOrders(ArrayList<String> orderIdList) throws Exception{
 			
-			ArrayList<Order> orders = new ArrayList<Order>();
 			//TODO: get all orders from database and create Order objects with constructor
-			// DB connect information
-		    String url = "jdbc:mysql://140.112.12.252:3306/hotelsystem?serverTimezone=UTC";
-		    String username = "OOAD";
-		    String password = "caece";
-		    Connection con = null;
+			ArrayList<Order> orders = new ArrayList<Order>();
 			
-		    try {
-		    	Class.forName("com.mysql.cj.jdbc.Driver");
-		    	con = DriverManager.getConnection(url, username, password);
-		    	
-		    	for(String orderId : orderIdList) {
+			Connection con = DBUtil.getConnection();
+			
+			for(String orderId : orderIdList) {
 
-			    	String query = "SELECT * FROM tb_order where OrderID = ?";
-			    	PreparedStatement pst = con.prepareStatement(query);
-			    	
-			    	pst.setString(1, orderId);
-			    	ResultSet rs = pst.executeQuery();
-			        
-			        if (rs.next())
-			        {	        
-			        	orders.add(new Order(rs.getString("OrderID"), 
-			        						 rs.getString("StartDate"), 
-			        						 rs.getString("EndDate"), 
-			        						 rs.getString("CustomerName"),
-			        						 rs.getString("HotelID"),
-			        						 rs.getInt("TotalPrice"),
-			        						 rs.getInt("singleRoomNum"), 
-			        						 rs.getInt("doubleRoomNum"), 
-			        						 rs.getInt("quadRoomNum"),
-			        						 rs.getInt("isPaid")));
-			        }
+		    	String query = "SELECT * FROM tb_order where OrderID = ?";
+		    	PreparedStatement pst = con.prepareStatement(query);
+		    	
+		    	pst.setString(1, orderId);
+		    	ResultSet rs = pst.executeQuery();
 		        
-			        con.close();
-
-		    	}
-		    	
-		    } catch (SQLException ex) {
-		        throw new Error("Error ", ex);
-		    } finally {
-		      try {
-		        if (con != null) {
-		            con.close();
+		        if (rs.next())
+		        {	        
+		        	orders.add(new Order(rs.getString("OrderID"), 
+		        						 rs.getString("StartDate"), 
+		        						 rs.getString("EndDate"), 
+		        						 rs.getString("CustomerName"),
+		        						 rs.getString("HotelID"),
+		        						 rs.getInt("TotalPrice"),
+		        						 rs.getInt("singleRoomNum"), 
+		        						 rs.getInt("doubleRoomNum"), 
+		        						 rs.getInt("quadRoomNum"),
+		        						 rs.getInt("isPaid")));
 		        }
-		      } catch (SQLException ex) {
-		          System.out.println(ex.getMessage());
-		      }
-		}
-		    //test
-			//orders.add(new Order(orderIdList.get(0), "20200103", "20200105", "Hao", "hotelID", 567, 0, 3, 1));
-			//orders.add(new Order(orderIdList.get(1), "20201006", "20201008", "Hao", "hotelID", 789, 2, 0, 0));
-			//end test
+			}
+
+			con.close();
 			
 			return orders;
 		}
@@ -202,56 +160,34 @@ public class Order {
 			// For updating order
 			Order order = null;
 			
-			String url = "jdbc:mysql://140.112.12.252:3306/hotelsystem?serverTimezone=UTC";
-		    String username = "OOAD";
-		    String password = "caece";
-		    Connection con = null;
+			Connection con = DBUtil.getConnection();
 			
-		    try {
-		    	Class.forName("com.mysql.cj.jdbc.Driver");
-		    	con = DriverManager.getConnection(url, username, password);
-	
-		    	// HotelID Filter
-		    	String query = "SELECT * FROM tb_order where OrderID = ?";
-		    	PreparedStatement pst = con.prepareStatement(query);
-		    	
-		    	//  Need to pass value from controller
-		    	pst.setString(1, orderId);
-		    				        
-		        // execute the query, and get a java resultset
-		        ResultSet rs = pst.executeQuery();
-		        
-		        if(rs.next())
-		        {
-		        	order = new Order(rs.getString("OrderID"), 
- 			   						  rs.getString("StartDate"), 
- 			   						  rs.getString("EndDate"), 
-			   						  rs.getString("CustomerName"),
-			   						  rs.getString("HotelID"),
-			   						  rs.getInt("TotalPrice"),
-			   						  rs.getInt("singleRoomNum"), 
-			   						  rs.getInt("doubleRoomNum"), 
-			   						  rs.getInt("quadRoomNum"),
-			   						  rs.getInt("isPaid"));
-		        }
-		        else
-		        {
-		        	order = new Order();
-		        }
-		        
-		        con.close();
-		        
-		    } catch (SQLException ex) {
-		        throw new Error("Error ", ex);
-		    } finally {
-		      try {
-		        if (con != null) {
-		            con.close();
-		        }
-		      } catch (SQLException ex) {
-		          System.out.println(ex.getMessage());
-		      }
-		}
+		    String query = "SELECT * FROM tb_order where OrderID = ?";
+	    	PreparedStatement pst = con.prepareStatement(query);
+	    	
+	    	//  Need to pass value from controller
+	    	pst.setString(1, orderId);
+	    				        
+	        // execute the query, and get a java resultset
+	        ResultSet rs = pst.executeQuery();
+	        
+	        if(rs.next()){
+	        	order = new Order(rs.getString("OrderID"), 
+		   						  rs.getString("StartDate"), 
+		   						  rs.getString("EndDate"), 
+		   						  rs.getString("CustomerName"),
+		   						  rs.getString("HotelID"),
+		   						  rs.getInt("TotalPrice"),
+		   						  rs.getInt("singleRoomNum"), 
+		   						  rs.getInt("doubleRoomNum"), 
+		   						  rs.getInt("quadRoomNum"),
+		   						  rs.getInt("isPaid"));
+	        } else {
+	        	order = new Order();
+	        }
+	        
+	        con.close();
+
 			return order;
 		}
 
@@ -273,33 +209,14 @@ public class Order {
 	
 		void updateOrder(int isPaid) throws Exception {
 			
-		    String url = "jdbc:mysql://140.112.12.252:3306/hotelsystem?serverTimezone=UTC";
-		    String username = "OOAD";
-		    String password = "caece";
-		    Connection con = null;
+		    Connection con = DBUtil.getConnection();
 			
-		    try {
-		    	Class.forName("com.mysql.cj.jdbc.Driver");
-		    	con = DriverManager.getConnection(url, username, password);
-	
-		    	String query = "UPDATE `hotelsystem`.`tb_order` SET `IsPaid` = '1' WHERE (`OrderID` = ?)";
-		    	PreparedStatement pst = con.prepareStatement(query);
-		    	pst.setString(1, id);
-		    	pst.executeUpdate();
+		    String query = "UPDATE `hotelsystem`.`tb_order` SET `IsPaid` = '1' WHERE (`OrderID` = ?)";
+	    	PreparedStatement pst = con.prepareStatement(query);
+	    	pst.setString(1, id);
+	    	pst.executeUpdate();
 
-		        con.close();
-		        
-		    } catch (SQLException ex) {
-		        throw new Error("Error ", ex);
-		    } finally {
-		      try {
-		        if (con != null) {
-		            con.close();
-		        }
-		      } catch (SQLException ex) {
-		          System.out.println(ex.getMessage());
-		      }
-		    }
+	        con.close();
 			
 		}
 
@@ -369,73 +286,36 @@ public class Order {
 		void CancelOrder() throws Exception {
 			
 			//TODO: remove this order in database
-		    String url = "jdbc:mysql://140.112.12.252:3306/hotelsystem?serverTimezone=UTC";
-		    String username = "OOAD";
-		    String password = "caece";
-		    Connection con = null;
+		    Connection con = DBUtil.getConnection();
 		    
-		    try {
-		    	Class.forName("com.mysql.cj.jdbc.Driver");
-		    	con = DriverManager.getConnection(url, username, password);
-	
-		    	// HotelID Filter
-		    	String query = "delete from tb_order where OrderID = ?";
-		    	PreparedStatement pst = con.prepareStatement(query);
-		    	pst.setString(1, id);
-		    	pst.executeUpdate();
-				query = "delete from tb_orderid2roomid where OrderID = ?";
-		    	pst = con.prepareStatement(query);
-		    	pst.setString(1, id);
-		    	pst.executeUpdate();
-		        con.close();
-		        
-		    } catch (SQLException ex) {
-		        throw new Error("Error ", ex);
-		    } finally {
-		      try {
-		        if (con != null) {
-		            con.close();
-		        }
-		      } catch (SQLException ex) {
-		          System.out.println(ex.getMessage());
-		      }
-		    }
+		    // HotelID Filter
+	    	String query = "delete from tb_order where OrderID = ?";
+	    	PreparedStatement pst = con.prepareStatement(query);
+	    	pst.setString(1, id);
+	    	pst.executeUpdate();
+			query = "delete from tb_orderid2roomid where OrderID = ?";
+	    	pst = con.prepareStatement(query);
+	    	pst.setString(1, id);
+	    	pst.executeUpdate();
+
+	        con.close();
 		}
 		
 		void AddComment(Comment comment) throws Exception{
 			
 			//TODO: write comment to database within hotelID
-			//TODO: remove this order in database
-		    String url = "jdbc:mysql://140.112.12.252:3306/hotelsystem?serverTimezone=UTC";
-		    String username = "OOAD";
-		    String password = "caece";
-		    Connection con = null;
+			Connection con = DBUtil.getConnection();
 
-		    try {
-		    	Class.forName("com.mysql.cj.jdbc.Driver");
-		    	con = DriverManager.getConnection(url, username, password);
-	
-		    	String query = "INSERT INTO `hotelsystem`.`tb_comment` (`HotelID`, `Comment`, `Star`, `OrderID`)"
+		    String query = "INSERT INTO `hotelsystem`.`tb_comment` (`HotelID`, `Comment`, `Star`, `OrderID`)"
 		    			+ " VALUES (?, ?, ?, ?);";
-		    	PreparedStatement pst = con.prepareStatement(query);
-		    	pst.setString(1, hotelId);
-				pst.setString(2, comment.GetDescription());
-				pst.setInt(3, comment.GetStarRate());
-				pst.setString(4, this.id);
-		    	pst.execute();
-		        con.close();
-		        
-		    } catch (SQLException ex) {
-		        throw new Error("Error ", ex);
-		    } finally {
-		      try {
-		        if (con != null) {
-		            con.close();
-		        }
-		      } catch (SQLException ex) {
-		          System.out.println(ex.getMessage());
-		      }
-		    }
+	    	PreparedStatement pst = con.prepareStatement(query);
+	    	pst.setString(1, hotelId);
+			pst.setString(2, comment.GetDescription());
+			pst.setInt(3, comment.GetStarRate());
+			pst.setString(4, this.id);
+	    	pst.execute();
+	    	
+	        con.close();
 		}
 
 		String GetCustomerName() {

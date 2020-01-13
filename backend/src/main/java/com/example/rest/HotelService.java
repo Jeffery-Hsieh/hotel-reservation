@@ -13,7 +13,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
 @Path("/hotels")
 public class HotelService {
@@ -26,9 +25,17 @@ public class HotelService {
     return hotels.toArray(new Hotel[0]);
   }
   
+  @GET
+  @Path("/{hotelID}/comments")
+  @Produces("application/json")
+  public Comment[] showHotelComments(@PathParam("hotelID") String hotelID) throws Exception {
+    ArrayList<Comment> comments = Hotel.GetComments(hotelID);
+    return comments.toArray(new Comment[0]);
+  }
+
   // show available rooms
   @GET
-  @Path("{hotelID}")
+  @Path("/{hotelID}")
   @Produces("application/json")
   public Response showAvailableRooms(
     @PathParam("hotelID") String hotel_id,
@@ -63,7 +70,7 @@ public class HotelService {
         requirement.put("Quad", order.quadRoomNum);
     }
 
-    // System.out.println(order.GetCustomerName());
+    System.out.println(order.GetCustomerName());
     Order newOrder = SearchControl.addOrder(order.startDate, order.endDate, order.customerName, hotelID, requirement);
     newOrder.newOrder();
 
